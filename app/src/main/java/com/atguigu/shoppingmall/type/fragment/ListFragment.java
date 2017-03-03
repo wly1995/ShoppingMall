@@ -53,6 +53,10 @@ public class ListFragment extends BaseFragment {
         return view;
     }
 
+    /**
+     * 是否是第一次进来
+     */
+    private boolean isFirst = true;
     @Override
     public void initData() {
         super.initData();
@@ -66,18 +70,20 @@ public class ListFragment extends BaseFragment {
     @Override
     public void onHiddenChanged(boolean hidden) {
         if (!hidden){
-            adapter.selectChange(0);
-            adapter.notifyDataSetChanged();
-            getDataFromNet(urls[0]);
+            isFirst = false;
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        adapter.selectChange(0);
-        adapter.notifyDataSetChanged();
-        getDataFromNet(urls[0]);
+        if (isFirst){
+            adapter.selectChange(0);
+            adapter.notifyDataSetChanged();
+            getDataFromNet(urls[0]);
+        }else {
+            showData();
+        }
     }
 
     private void showData() {
@@ -118,6 +124,7 @@ public class ListFragment extends BaseFragment {
                         if (response != null) {
                             //解析数据
                             processData(response);
+                            isFirst = false;
                         }
                     }
 
