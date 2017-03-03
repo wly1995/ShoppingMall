@@ -12,6 +12,7 @@ import com.atguigu.shoppingmall.base.BaseFragment;
  */
 
 public class TagFragment extends BaseFragment {
+
     private TextView textView;
     @Override
     public View initView() {

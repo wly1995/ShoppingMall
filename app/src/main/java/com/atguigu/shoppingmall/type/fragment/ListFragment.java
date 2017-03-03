@@ -1,30 +1,159 @@
 package com.atguigu.shoppingmall.type.fragment;
 
-import android.graphics.Color;
-import android.view.Gravity;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
+import com.alibaba.fastjson.JSON;
+import com.atguigu.shoppingmall.R;
 import com.atguigu.shoppingmall.base.BaseFragment;
+import com.atguigu.shoppingmall.type.adapter.TypeLeftAdapter;
+import com.atguigu.shoppingmall.type.adapter.TypeRightAdapter;
+import com.atguigu.shoppingmall.type.bean.TypeBean;
+import com.atguigu.shoppingmall.utils.Constants;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
+
+import java.util.List;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import okhttp3.Call;
+
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by 万里洋 on 2017/3/3.
  */
 
 public class ListFragment extends BaseFragment {
-    private TextView textView;
+    @InjectView(R.id.lv_left)
+    ListView lvLeft;
+    @InjectView(R.id.rv_right)
+    RecyclerView rvRight;
+    private TypeLeftAdapter adapter;
+    /**
+     * 数据
+     */
+    private String[] titles = new String[]{"小裙子", "上衣", "下装", "外套", "配件", "包包", "装扮", "居家宅品",
+            "办公文具", "数码周边", "游戏专区"};
+
+    private String[] urls = new String[]{Constants.SKIRT_URL, Constants.JACKET_URL, Constants.PANTS_URL, Constants.OVERCOAT_URL,
+            Constants.ACCESSORY_URL, Constants.BAG_URL, Constants.DRESS_UP_URL, Constants.HOME_PRODUCTS_URL, Constants.STATIONERY_URL,
+            Constants.DIGIT_URL, Constants.GAME_URL};
+    private List<TypeBean.ResultBean> result;
+
     @Override
     public View initView() {
-        textView = new TextView(mContext);
-        textView.setGravity(Gravity.CENTER);
-        textView.setTextSize(25);
-        textView.setTextColor(Color.RED);
-        return textView;
+        View view = View.inflate(mContext, R.layout.fragment_list, null);
+        ButterKnife.inject(this, view);
+        return view;
     }
 
     @Override
     public void initData() {
         super.initData();
-        textView.setText("分类Fragment内容");
+        //设置listview的适配器
+        adapter = new TypeLeftAdapter(mContext,titles);
+        lvLeft.setAdapter(adapter);
+        showData();
+
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        if (!hidden){
+            adapter.selectChange(0);
+            adapter.notifyDataSetChanged();
+            getDataFromNet(urls[0]);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        adapter.selectChange(0);
+        adapter.notifyDataSetChanged();
+        getDataFromNet(urls[0]);
+    }
+
+    private void showData() {
+        //设置listview的点击事件
+        lvLeft.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                adapter.selectChange(position);
+                //刷新视图
+                adapter.notifyDataSetChanged();
+
+                //设置点击对应item就加载对应数据
+                getDataFromNet(urls[position]);
+            }
+        });
+    }
+
+    /**
+     * 联网请求网络
+     * @param url
+     */
+    private void getDataFromNet(String url) {
+        Log.e("TAG", "url======" + url);
+        OkHttpUtils
+                .get()
+                .url(url)
+                .build()
+                .execute(new StringCallback() {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+
+                        Log.e(TAG, "首页请求失败==" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        Log.e(TAG, "请求成功==");
+                        if (response != null) {
+                            //解析数据
+                            processData(response);
+                        }
+                    }
+
+                });
+
+    }
+    private void processData(String json) {
+        TypeBean typeBean = JSON.parseObject(json,TypeBean.class);
+        result = typeBean.getResult();
+        Log.e("TAG","解析成功=="+typeBean.getResult().get(0).getName());
+        //设置recyclerView的适配器
+        if (result != null && result.size()>0){
+            //设置适配器
+            TypeRightAdapter rightAdapter = new TypeRightAdapter(mContext,result);
+            rvRight.setAdapter(rightAdapter);
+            //设置布局管理器
+            //设置3列
+            GridLayoutManager manager = new GridLayoutManager(mContext,3);
+            manager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+                @Override
+                public int getSpanSize(int position) {
+
+                    if(position==0){
+                        return 3;
+                    }else{
+                        return 1;
+                    }
+                }
+            });
+            rvRight.setLayoutManager(manager);
+        }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ButterKnife.reset(this);
     }
 }
