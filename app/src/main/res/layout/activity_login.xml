@@ -173,7 +173,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/af9" />
+                android:src="@drawable/icon_weibo" />
 
             <ImageButton
                 android:id="@+id/ib_qq"
@@ -182,7 +182,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/af8" />
+                android:src="@drawable/icon_share_qq" />
 
             <ImageButton
                 android:id="@+id/ib_wechat"
@@ -191,7 +191,7 @@
                 android:layout_gravity="center"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/afb" />
+                android:src="@drawable/icon_weixin" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

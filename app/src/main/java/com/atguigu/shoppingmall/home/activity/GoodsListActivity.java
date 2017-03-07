@@ -34,6 +34,9 @@ import com.atguigu.shoppingmall.utils.Constants;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.StringCallback;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
@@ -211,6 +214,8 @@ public class GoodsListActivity extends AppCompatActivity {
     private TypeListBean typeListBean;
     private GoodsListAdapter adapter;
     private int click_count;
+    private ArrayList<String> group;
+    private ArrayList<List<String>> child;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,7 +343,6 @@ public class GoodsListActivity extends AppCompatActivity {
                 outRect.left = 0;
             }
         }
-
     }
 
     private void getData() {
@@ -495,7 +499,27 @@ public class GoodsListActivity extends AppCompatActivity {
         llThemeRoot.setVisibility(View.GONE);
 
         //初始化ExpandableListView
-//        initExpandableListView();
+        initExpandableListView();
+    }
+
+    private void initExpandableListView() {
+//创建集合
+        group = new ArrayList<>();
+        child = new ArrayList<>();
+
+        //添加数据
+        addInfo("全部", new String[]{});
+        addInfo("上衣", new String[]{"古风", "和风", "lolita", "日常"});
+        addInfo("下装", new String[]{"日常", "泳衣", "汉风", "lolita", "创意T恤"});
+        addInfo("外套", new String[]{"汉风", "古风", "lolita", "胖次", "南瓜裤", "日常"});
+    }
+    private void addInfo(String g, String[] c) {
+        group.add(g);
+        List<String> list = new ArrayList<String>();
+        for (int i = 0; i < c.length; i++) {
+            list.add(c[i]);
+        }
+        child.add(list);
     }
 }
 
