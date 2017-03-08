@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.alibaba.fastjson.JSON;
 import com.atguigu.shoppingmall.MainActivity;
 import com.atguigu.shoppingmall.R;
+import com.atguigu.shoppingmall.home.adapter.ExpandableListViewAdapter;
 import com.atguigu.shoppingmall.home.adapter.GoodsListAdapter;
 import com.atguigu.shoppingmall.home.adapter.HomeAdapter;
 import com.atguigu.shoppingmall.home.bean.GoodsBean;
@@ -216,6 +217,7 @@ public class GoodsListActivity extends AppCompatActivity {
     private int click_count;
     private ArrayList<String> group;
     private ArrayList<List<String>> child;
+    private ExpandableListViewAdapter expandableListViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,13 +241,13 @@ public class GoodsListActivity extends AppCompatActivity {
     }
 
     private void initData() {
-        getDataFromNet();
+        getDataFromNet(urls[position]);
     }
 
-    private void getDataFromNet() {
+    private void getDataFromNet(String url) {
         OkHttpUtils
                 .get()
-                .url(urls[position])//根据位置获取不同的联网地址
+                .url(url)//根据位置获取不同的联网地址
                 .id(100)
                 .build()
                 .execute(new MyStringCallback());
@@ -504,14 +506,50 @@ public class GoodsListActivity extends AppCompatActivity {
 
     private void initExpandableListView() {
 //创建集合
-        group = new ArrayList<>();
-        child = new ArrayList<>();
+        group = new ArrayList<>();//放的是每个组的名字
+        child = new ArrayList<>();//child是一个集合里面的每一个元素又是一个集合，
+        // 所以最外面的集合是一个一个的组，里面的每一个集合就代表没一个组里面的东西
 
         //添加数据
         addInfo("全部", new String[]{});
         addInfo("上衣", new String[]{"古风", "和风", "lolita", "日常"});
         addInfo("下装", new String[]{"日常", "泳衣", "汉风", "lolita", "创意T恤"});
         addInfo("外套", new String[]{"汉风", "古风", "lolita", "胖次", "南瓜裤", "日常"});
+
+
+        //设置适配器
+        expandableListViewAdapter = new ExpandableListViewAdapter(this, group, child);
+        expandableListView.setAdapter(expandableListViewAdapter);
+
+        // 这里是控制如果列表没有孩子菜单不展开的效果
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent,
+                                        View v, int groupPosition, long id) {
+                if (child.get(groupPosition).isEmpty()) {// isEmpty没有，这个组的数据为空
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+
+        //设置点击孩子
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v,
+                                        int groupPosition, int childPosiion, long id) {
+//                Toast.makeText(GoodsListActivity.this,"_"+group.get(groupPosition)+"_"+child.get(groupPosition).
+//                        get(childPosiion)+"被点击了",Toast.LENGTH_SHORT).show();
+                expandableListViewAdapter.isChildSelectable(groupPosition,childPosiion);//把点击的组位置和孩子位置传过去
+
+                //进行刷新
+                expandableListViewAdapter.notifyDataSetChanged();
+                return true;
+            }
+        });
+
     }
     private void addInfo(String g, String[] c) {
         group.add(g);
@@ -521,6 +559,7 @@ public class GoodsListActivity extends AppCompatActivity {
         }
         child.add(list);
     }
+
 }
 
 
