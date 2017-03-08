@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -111,6 +112,14 @@ public class SearchActivity extends AppCompatActivity {
                     list.add(text);
                     adapter = new SearchAdapetr(this, list);
                     lvSearch.setAdapter(adapter);
+                    //设置点击事件
+                    lvSearch.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            String s = list.get(position);
+                            tvSearchHome.setText(s);
+                        }
+                    });
                     //再进行跳转
                     startActivity(new Intent(this, GoodsListActivity.class));
                 }

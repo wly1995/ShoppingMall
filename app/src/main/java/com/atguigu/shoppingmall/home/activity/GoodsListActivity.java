@@ -349,7 +349,7 @@ public class GoodsListActivity extends AppCompatActivity {
 
     private void getData() {
         Intent intent = getIntent();
-        position = intent.getIntExtra("position", -1);
+        position = intent.getIntExtra("position", 0);
     }
 
     @OnClick({R.id.btn_drawer_type_cancel,R.id. btn_drawer_theme_confirm,R.id. btn_drawer_theme_cancel,
